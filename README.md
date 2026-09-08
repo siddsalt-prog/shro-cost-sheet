@@ -149,22 +149,66 @@ docker compose restart
 
 ---
 
-### Option B: Standalone Docker Container (Embedded Database)
+### Option B: Demo / Standalone Mode with Embedded Database (Docker Compose)
 
-If you prefer a single-container deployment without running a separate Postgres instance:
+If you are running a demo or proof-of-concept, you do not need an external PostgreSQL database. You can run the entire application using the provided `docker-compose.demo.yml`:
 
+```bash
+# Start demo mode with Docker Compose (auto-builds and boots embedded PGlite):
+docker compose -f docker-compose.demo.yml up -d --build
+```
+
+#### What happens:
+- **Instant Boot**: Starts only the application container with no extra database dependencies.
+- **Embedded Database**: Because `DATABASE_URL` is omitted, the app automatically initializes the embedded PostgreSQL engine (**PGlite**).
+- **Persistence**: All data is saved directly to `./data` and uploaded documents to `./uploads` on your host machine.
+- **Seed Data**: Pre-populates all departmental users, customer accounts, and sample quotations.
+
+#### Access & Demo Credentials:
+Open your browser at **`http://localhost:3000`**. All demo accounts use the password: **`Shro@2026`**
+
+| Role | Username | Password | Purpose in Demo |
+| :--- | :--- | :--- | :--- |
+| **System Admin** | `admin` | `Shro@2026` | Full system control, Sudo 'Login As' mode, Master dropdowns |
+| **Sales Rep** | `vaibhav.g` | `Shro@2026` | Create draft cost sheets, configure line items, submit for review |
+| **Stage 1: Finance 1** | `rajesh.k` | `Shro@2026` | Reviewer for Stage 1 (Initial credit & payment terms) |
+| **Stage 2: Presales** | `amit.s` | `Shro@2026` | Reviewer for Stage 2 (Technical BOM & OEM sizing) |
+| **Stage 3: Management** | `priya.m` | `Shro@2026` | Reviewer for Stage 3 (Commercial margin clearance) |
+| **Stage 4: Operations** | `suresh.p` | `Shro@2026` | Reviewer for Stage 4 (Order viability & PO validation) |
+| **Stage 5: Logistics** | `deepak.v` | `Shro@2026` | Reviewer for Stage 5 (Transit & delivery scheduling) |
+| **Stage 6: Finance 2** | `anita.r` | `Shro@2026` | Reviewer for Stage 6 (Final invoicing sign-off) |
+
+> 💡 **Demo Pro-Tip (Admin Sudo Mode)**: Log in as `admin`. In the top-right user menu, click **"Sudo / Login As"** to switch directly into any reviewer's persona (Finance, Presales, Operations, etc.) in real time. This lets you showcase the full 6-stage sequential sign-off and rejection workflow in minutes without logging out and back in.
+
+#### Handy Demo Commands:
+```bash
+# View live application logs:
+docker compose -f docker-compose.demo.yml logs -f
+
+# Stop the demo containers:
+docker compose -f docker-compose.demo.yml down
+
+# Reset the database to a fresh seed state:
+docker compose -f docker-compose.demo.yml down
+rm -rf ./data/postgres
+docker compose -f docker-compose.demo.yml up -d
+```
+
+---
+
+#### Alternative: Direct `docker run` (Single Container)
 ```bash
 # 1. Build Docker image
 docker build -t shro-cost-sheets:latest .
 
-# 2. Run container with mounted persistence volumes
+# 2. Run container with mounted persistence volumes (embedded DB active)
 docker run -d \
   -p 3000:3000 \
   --name shro-app \
   --restart unless-stopped \
   -v $(pwd)/data:/app/data \
   -v $(pwd)/uploads:/app/uploads \
-  -e JWT_SECRET="your_production_secret_key" \
+  -e JWT_SECRET="your_demo_secret_key" \
   shro-cost-sheets:latest
 ```
 
