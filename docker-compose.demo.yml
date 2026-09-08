@@ -18,6 +18,6 @@ services:
       - JWT_SECRET=shro_demo_secret_jwt_key_2026
       # Leaving DATABASE_URL unset triggers the embedded PostgreSQL (PGlite) automatically!
     volumes:
-      - ./data:/app/data
-      - ./uploads:/app/uploads
+      - ./data:/app/data:Z
+      - ./uploads:/app/uploads:Z
 

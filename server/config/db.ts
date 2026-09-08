@@ -51,6 +51,24 @@ export async function query(sql: string, params: any[] = []): Promise<{ rows: an
 export async function initDb() {
   console.log('Initializing PostgreSQL database schemas...');
   
+  if (pgPool) {
+    let connected = false;
+    let attempts = 0;
+    while (!connected && attempts < 15) {
+      try {
+        attempts++;
+        await pgPool.query('SELECT 1');
+        connected = true;
+      } catch (err: any) {
+        if (attempts >= 15) {
+          throw new Error(`Failed to connect to PostgreSQL database after 15 attempts: ${err.message}`);
+        }
+        console.log(`Waiting for PostgreSQL database to be ready (attempt ${attempts}/15)...`);
+        await new Promise(r => setTimeout(r, 2000));
+      }
+    }
+  }
+  
   const schemaSql = `
     CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,

@@ -196,6 +196,71 @@ docker compose -f docker-compose.demo.yml up -d
 
 ---
 
+### Option C: Podman Deployment (Demo & Production)
+
+The project includes first-class support for **Podman** (both rootless and rootful), supporting:
+1. Native `podman compose` (Podman v4.7+ / v5+)
+2. Standalone `podman-compose` (Python CLI tool)
+3. Direct `podman run` commands
+
+All volume mounts include SELinux labels (`:Z`) so that permission errors are prevented on RHEL, CentOS, Fedora, Rocky, and AlmaLinux.
+
+#### 1. Running DEMO Mode with Podman (Embedded Database)
+
+No external database required — runs in a single lightweight rootless container:
+
+```bash
+# Using native podman compose:
+podman compose -f podman-compose.demo.yml up -d --build
+
+# OR using python podman-compose:
+podman-compose -f podman-compose.demo.yml up -d
+
+# View logs:
+podman compose -f podman-compose.demo.yml logs -f
+
+# Stop demo:
+podman compose -f podman-compose.demo.yml down
+```
+
+Access the demo at **`http://localhost:3000`** with username `admin` and password `Shro@2026`.
+
+#### 2. Running PRODUCTION Mode with Podman (App + Dedicated PostgreSQL)
+
+Runs full production architecture with dedicated PostgreSQL 16 on an isolated bridge network:
+
+```bash
+# Using native podman compose:
+podman compose -f podman-compose.yml up -d --build
+
+# OR using python podman-compose:
+podman-compose -f podman-compose.yml up -d
+
+# View logs:
+podman compose -f podman-compose.yml logs -f
+
+# Stop stack:
+podman compose -f podman-compose.yml down
+```
+
+#### 3. Podman Single-Container Run (Without Compose)
+```bash
+# 1. Build image with Podman
+podman build -t shro-cost-sheets:latest .
+
+# 2. Run container (note the ':Z' flag for SELinux volume permission mapping)
+podman run -d \
+  -p 3000:3000 \
+  --name shro-app \
+  --restart unless-stopped \
+  -v $(pwd)/data:/app/data:Z \
+  -v $(pwd)/uploads:/app/uploads:Z \
+  -e JWT_SECRET="your_demo_secret_key" \
+  shro-cost-sheets:latest
+```
+
+---
+
 #### Alternative: Direct `docker run` (Single Container)
 ```bash
 # 1. Build Docker image

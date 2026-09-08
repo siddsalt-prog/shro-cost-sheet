@@ -1,4 +1,6 @@
-version: '3.8'
+# Podman Compose configuration for PRODUCTION mode
+# Compatible with both 'podman compose' (Podman v4.7+) and 'podman-compose' (Python CLI)
+# Runs full-stack: Application + Dedicated PostgreSQL 16 on an isolated bridge network
 
 services:
   # Main Application Service
@@ -14,14 +16,14 @@ services:
       - NODE_ENV=production
       - PORT=3000
       - JWT_SECRET=your_super_secret_jwt_key_here_change_in_production
-      # Connecting to PostgreSQL container below:
+      # Connecting to the 'db' service over internal network:
       - DATABASE_URL=postgresql://postgres:shro_secure_db_pass@db:5432/shro_cost_sheets?sslmode=disable
-      # SMTP Email Configuration (Optional - for automated email notifications)
-      - SMTP_HOST=smtp.gmail.com
-      - SMTP_PORT=587
-      - SMTP_USER=notifications@yourcompany.com
-      - SMTP_PASS=your_email_app_password
-      - SMTP_SECURE=false
+      # SMTP Email Configuration (Optional - uncomment and fill if needed)
+      # - SMTP_HOST=smtp.gmail.com
+      # - SMTP_PORT=587
+      # - SMTP_USER=notifications@yourcompany.com
+      # - SMTP_PASS=your_email_app_password
+      # - SMTP_SECURE=false
     volumes:
       - app_uploads:/app/uploads:Z
       - app_data:/app/data:Z
