@@ -30,8 +30,11 @@ function getTransporter() {
 export async function sendApprovalRequestEmail(approverEmail: string, approverName: string, csNumber: string, subject: string, stageName: string, totalSale: number, margin: number) {
   try {
     const t = getTransporter();
+    const fromAddress = process.env.SMTP_FROM || `"SHRO Quotation Workflow" <${process.env.SMTP_USER || 'no-reply@shrosystems.com'}>`;
+    const appUrl = process.env.APP_URL || 'http://localhost:3000';
+
     const mailOptions = {
-      from: '"SHRO Quotation Workflow" <no-reply@shrosystems.com>',
+      from: fromAddress,
       to: approverEmail,
       subject: `[Action Required] Approval Needed: Cost Sheet ${csNumber} - Stage: ${stageName}`,
       html: `
@@ -47,6 +50,9 @@ export async function sendApprovalRequestEmail(approverEmail: string, approverNa
             <p style="margin: 4px 0;"><strong>Current Stage:</strong> <span style="color: #2563eb; font-weight: bold;">${stageName}</span></p>
           </div>
           <p>Please log in to the SHRO Cost Sheet Portal to inspect line items, verify profitability metrics, and submit your decision.</p>
+          <div style="margin: 20px 0;">
+            <a href="${appUrl}" style="background-color: #2563eb; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Open Cost Sheet Portal</a>
+          </div>
           <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
           <p style="font-size: 12px; color: #64748b;">This is an automated notification from SHRO Systems Internal Sales Portal.</p>
         </div>
@@ -67,8 +73,11 @@ export async function sendDecisionNotificationEmail(initiatorEmail: string, init
     const isApproved = decision === 'Approved';
     const color = isApproved ? '#16a34a' : '#dc2626';
 
+    const fromAddress = process.env.SMTP_FROM || `"SHRO Quotation Workflow" <${process.env.SMTP_USER || 'no-reply@shrosystems.com'}>`;
+    const appUrl = process.env.APP_URL || 'http://localhost:3000';
+
     const mailOptions = {
-      from: '"SHRO Quotation Workflow" <no-reply@shrosystems.com>',
+      from: fromAddress,
       to: initiatorEmail,
       subject: `[Status Update: ${decision}] Cost Sheet ${csNumber} by ${actorName}`,
       html: `
@@ -85,6 +94,9 @@ export async function sendDecisionNotificationEmail(initiatorEmail: string, init
             ${comment ? `<p style="margin: 4px 0;"><strong>Reviewer Remarks:</strong> <em>"${comment}"</em></p>` : ''}
           </div>
           <p>${isApproved ? 'The sheet has moved to the next sequential stage or is fully approved.' : 'Please review the reviewer remarks and revise the cost sheet if necessary.'}</p>
+          <div style="margin: 20px 0;">
+            <a href="${appUrl}" style="background-color: #2563eb; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">View in Cost Sheet Portal</a>
+          </div>
           <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
           <p style="font-size: 12px; color: #64748b;">This is an automated notification from SHRO Systems Internal Sales Portal.</p>
         </div>
