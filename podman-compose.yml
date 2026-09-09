@@ -25,7 +25,7 @@ services:
       # - SMTP_PASS=your_email_app_password
       # - SMTP_SECURE=false
     volumes:
-      - app_uploads:/app/uploads:Z
+      - app_uploads:/DATA/AppData//uploads:Z
       - app_data:/app/data:Z
     networks:
       - shro-network

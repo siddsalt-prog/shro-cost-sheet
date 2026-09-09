@@ -18,5 +18,5 @@ services:
       # Leaving DATABASE_URL unset triggers the embedded PostgreSQL (PGlite) engine!
     volumes:
       # The ':Z' flag configures private SELinux context labeling for rootless Podman
-      - ./data:/app/data:Z
-      - ./uploads:/app/uploads:Z
+      - ./data:/DATA/AppData/shro-crm/data:Z
+      - ./uploads:/DATA/AppData/shro-crm/uploads:Z
